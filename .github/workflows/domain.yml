@@ -1,0 +1,53 @@
+permissions:
+  contents: write
+name: domain Writer  
+on:
+  schedule:
+    - cron: "0 4 * * *"   
+    - cron: "0 16 * * *"  
+  workflow_dispatch:     # 支持手动触发
+jobs:
+  write-random:
+    name: Write url domain to domain
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        # 检出主分支，包含 ahri8.py 脚本
+
+      - name: Checkout domain branch
+        uses: actions/checkout@v4
+        with:
+          ref: domain      # 指定检出目标分支
+          path: home           # 放在 data 子目录下
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install pnpm
+        run: |
+          npm install -g pnpm
+          
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ahri8.js
+        working-directory: ./home
+        run: node ../ahri8.js
+        # 执行主分支的脚本 ahri8.js，输出 ahri8.txt 到 data 分支目录
+
+      - name: Set up Git identity
+        working-directory: ./home
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Push changes to home
+        working-directory: ./home
+        run: |
+          git add .
+          git commit -m "Auto update from GitHub Actions on $(date -d '+8 hours' '+%Y-%m-%d %H:%M:%S')" || echo "Nothing to commit"
+          git push
+        # 不写 add/commit，脚本里要有实际写入文件才会触发变更推送
