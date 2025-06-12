@@ -33,7 +33,7 @@ const fs = require('fs');
     // 解密过程
 
     const urlList = [];
-    $("p.d").each((index, element) => {
+    $("p.d").each((_, element) => {
 
 
         const encryptedBase64 = $(element).text().replace(/\s/g, "");
@@ -51,11 +51,14 @@ const fs = require('fs');
 
             let decrypted = decipher.update(encryptedData, null, 'utf8');
             decrypted += decipher.final('utf8');
+            if(decrypted=='影片'){
+              return false;
+            }
             const regex = /<a\s+[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g;
 
             while ((match = regex.exec(decrypted)) !== null) {
                 const href = match[1];
-                urlList.unshift(href.replace(/\/$/, ''));
+                urlList.push(href.replace(/\/$/, ''));
             }
 
 
