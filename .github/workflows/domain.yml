@@ -14,7 +14,6 @@ jobs:
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v4
-        # 检出主分支，包含 ahri8.py 脚本
 
       - name: Checkout domain branch
         uses: actions/checkout@v4
